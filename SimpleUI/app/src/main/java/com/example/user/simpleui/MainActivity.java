@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     CheckBox checkBox;
     ListView listView;
+    Spinner storeSpinner;
 
     //    String selectedSex = "Male";
 //    String name = "";
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         checkBox = (CheckBox) findViewById(R.id.checkBox);
         listView = (ListView) findViewById(R.id.listView);
+        storeSpinner = (Spinner) findViewById(R.id.spinner);
 
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupListView();
+        setupSpinner();
 
 //        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override
@@ -95,8 +99,14 @@ public class MainActivity extends AppCompatActivity {
 //        String[] from = new String[]{"drinkName", "note"};
 //        int[] to = new int[]{R.id.drinkNameTextView, R.id.noteTextView};
 //        SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.listivew_order_item, from, to);
-        OrderAdapter adapter = new OrderAdapter(this,orders);
+        OrderAdapter adapter = new OrderAdapter(this, orders);
         listView.setAdapter(adapter);
+    }
+
+    void setupSpinner() {
+        String[] data = getResources().getStringArray(R.array.storeInfo);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+        storeSpinner.setAdapter(adapter);
     }
 
     public void click(View view) {

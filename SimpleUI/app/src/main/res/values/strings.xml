@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SimpleUI</string>
+    <string-array name="storeInfo">
+        <item>台大店</item>
+        <item>永大店</item>
+        <item>輔大店</item>
+        <item>公館店</item>
+        <item>西門店</item>
+    </string-array>
 </resources>
