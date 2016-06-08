@@ -4,12 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -18,11 +22,13 @@ public class MainActivity extends AppCompatActivity {
     EditText editText;
     RadioGroup radioGroup;
     CheckBox checkBox;
+    ListView listView;
 
 //    String selectedSex = "Male";
 //    String name = "";
 //    String sex = "";
-    String drinkName = "";
+    String drinkName = "black tea";
+    ArrayList<String> drinks = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         checkBox = (CheckBox) findViewById(R.id.checkBox);
+        listView = (ListView) findViewById(R.id.listView);
 
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -58,12 +65,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setupListView();
+
 //        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override
 //            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                changeTextView();
 //            }
 //        });
+    }
+
+    void setupListView()
+    {
+        String[] data = new String[] {"123","456","789","Hello", "ListView","Hi"};
+        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,drinks);
+        listView.setAdapter(adapter);
     }
 
     public void click(View view)
@@ -73,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
 //        sex = selectedSex;
 
 //        changeTextView();
+        drinks.add(drinkName);
+        setupListView();
         txv.setText(drinkName);
 
         editText.setText("");
