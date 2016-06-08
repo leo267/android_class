@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -18,9 +19,10 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     CheckBox checkBox;
 
-    String selectedSex = "Male";
-    String name = "";
-    String sex = "";
+//    String selectedSex = "Male";
+//    String name = "";
+//    String sex = "";
+    String drinkName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,45 +48,48 @@ public class MainActivity extends AppCompatActivity {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.maleRadioButton) {
-                    selectedSex = "Male";
-                } else if (checkedId == R.id.femaleRadioButton) {
-                    selectedSex = "Female";
-                }
+//                if (checkedId == R.id.maleRadioButton) {
+//                    selectedSex = "Male";
+//                } else if (checkedId == R.id.femaleRadioButton) {
+//                    selectedSex = "Female";
+//                }
+                RadioButton radioButton = (RadioButton) findViewById(checkedId);
+                drinkName = radioButton.getText().toString();
             }
         });
 
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeTextView();
-            }
-        });
+//        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                changeTextView();
+//            }
+//        });
     }
 
     public void click(View view)
     {
-        name = editText.getText().toString();
+        String note = editText.getText().toString();
 
-        sex = selectedSex;
+//        sex = selectedSex;
 
-        changeTextView();
+//        changeTextView();
+        txv.setText(drinkName);
 
         editText.setText("");
     }
 
-    public void changeTextView()
-    {
-        if(name.equals("")) return;
-
-        if(checkBox.isChecked())
-        {
-            txv.setText(name);
-        }
-        else
-        {
-            String content = name + " sex: " + sex;
-            txv.setText(content);
-        }
-    }
+//    public void changeTextView()
+//    {
+//        if(name.equals("")) return;
+//
+//        if(checkBox.isChecked())
+//        {
+//            txv.setText(name);
+//        }
+//        else
+//        {
+//            String content = name + " sex: " + sex;
+//            txv.setText(content);
+//        }
+//    }
 }
