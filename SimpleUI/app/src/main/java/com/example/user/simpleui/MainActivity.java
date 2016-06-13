@@ -1,7 +1,9 @@
 package com.example.user.simpleui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -30,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     Spinner storeSpinner;
 
-
     String drinkName = "black tea";
     ArrayList<Order> orders = new ArrayList<>();
 
@@ -58,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupListView();
         setupSpinner();
+
+        Log.d("Debug", "Main Activity onCrearte");
     }
 
     void setupListView() {
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     void setupSpinner() {
         String[] data = getResources().getStringArray(R.array.storeInfo);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         storeSpinner.setAdapter(adapter);
     }
 
@@ -82,5 +85,47 @@ public class MainActivity extends AppCompatActivity {
         txv.setText(drinkName);
 
         editText.setText("");
+    }
+
+    public void goToMenu(View view) {
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, DrinkMenuActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Debug", "Main Activity onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("Debug", "Main Activity onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("Debug", "Main Activity onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("Debug", "Main Activity onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("Debug", "Main Activity onDestroy");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("Debug", "Main Activity onRestart");
     }
 }
