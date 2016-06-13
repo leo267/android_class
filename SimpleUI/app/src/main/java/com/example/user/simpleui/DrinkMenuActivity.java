@@ -1,5 +1,6 @@
 package com.example.user.simpleui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +8,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -55,8 +59,7 @@ public class DrinkMenuActivity extends AppCompatActivity {
 
     private void updateTotalPrice() {
         int total = 0;
-        for(Drink drink : drinkOrders)
-        {
+        for (Drink drink : drinkOrders) {
             total += drink.mPrice;
         }
         priceTextView.setText(String.valueOf(total));
@@ -73,9 +76,28 @@ public class DrinkMenuActivity extends AppCompatActivity {
         }
     }
 
-    private void setupListView() {
+    public void setupListView() {
         DrinkAdapter adapter = new DrinkAdapter(this, drinks);
         drinkListView.setAdapter(adapter);
+    }
+
+    public void done(View view) {
+        Intent intent = new Intent();
+        JSONArray array = new JSONArray();
+        for (Drink drink : drinkOrders){
+            JSONObject object = drink.getData();
+            array.put(object);
+        }
+        // array.toString() 轉成字串
+        intent.putExtra("results", array.toString());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    public void cancel(View view){
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
     }
 
     @Override
