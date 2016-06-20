@@ -7,6 +7,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -42,12 +46,12 @@ public class OrderAdapter extends BaseAdapter {
         Holder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.listivew_order_item, null);
-            TextView drinkName = (TextView) convertView.findViewById(R.id.drinkNameTextView);
+            TextView drinkNumberTextView = (TextView) convertView.findViewById(R.id.drinkNumberTextView);
             TextView note = (TextView) convertView.findViewById(R.id.noteTextView);
             TextView storeInfo = (TextView) convertView.findViewById(R.id.storeInfoTextView);
 
             holder = new Holder();
-            holder.drinkName = drinkName;
+            holder.drinkNumber = drinkNumberTextView;
             holder.note = note;
             holder.storeInfo = storeInfo;
 
@@ -57,7 +61,19 @@ public class OrderAdapter extends BaseAdapter {
         }
 
         Order order = orders.get(position);
-        holder.drinkName.setText(order.drinkName);
+
+        int totalNumber = 0;    // 所有飲料個數
+        try {
+            JSONArray jsonArray = new JSONArray(order.menuResults);
+            for (int i =0; i<jsonArray.length(); i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                totalNumber += jsonObject.getInt("lNumber")+jsonObject.getInt("mNumber");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        holder.drinkNumber.setText(String.valueOf(totalNumber));
         holder.note.setText(order.note);
         holder.storeInfo.setText(order.storeInfo);
         
@@ -65,7 +81,7 @@ public class OrderAdapter extends BaseAdapter {
     }
 
     class Holder {
-        TextView drinkName;
+        TextView drinkNumber;
         TextView note;
         TextView storeInfo;
     }

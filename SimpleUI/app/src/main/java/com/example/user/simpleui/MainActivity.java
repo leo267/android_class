@@ -8,20 +8,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     Spinner storeSpinner;
 
     String drinkName = "black tea";
+    String menuResults = "";
     ArrayList<Order> orders = new ArrayList<>();
     static final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
 
@@ -44,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         txv = (TextView) findViewById(R.id.txv);
         editText = (EditText) findViewById(R.id.editText);
-        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup = (RadioGroup) findViewById(R.id.iceRadioGroup);
         checkBox = (CheckBox) findViewById(R.id.checkBox);
         listView = (ListView) findViewById(R.id.listView);
         storeSpinner = (Spinner) findViewById(R.id.spinner);
@@ -80,14 +75,16 @@ public class MainActivity extends AppCompatActivity {
     public void click(View view) {
         String note = editText.getText().toString();
         Order order = new Order();
-        order.drinkName = drinkName;
+        order.menuResults = menuResults;
         order.note = note;
         order.storeInfo = storeSpinner.getSelectedItem().toString();
         orders.add(order);
-        setupListView();
-        txv.setText(drinkName);
 
+        txv.setText(note);
+        menuResults = "";
         editText.setText("");
+        
+        setupListView();
     }
 
     public void goToMenu(View view) {
@@ -101,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_DRINK_MENU_ACTIVITY) {
             if (resultCode == RESULT_OK) {
-                txv.setText(data.getStringExtra("results"));
+                menuResults = data.getStringExtra("results");
                 Toast.makeText(this, "完成菜單", Toast.LENGTH_SHORT).show();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "取消菜單", Toast.LENGTH_SHORT).show();
