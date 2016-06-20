@@ -1,11 +1,16 @@
 package com.example.user.simpleui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -27,9 +32,13 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     Spinner storeSpinner;
 
+    ArrayList<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
     String menuResults = "";
-    ArrayList<Order> orders = new ArrayList<>();
+
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
     static final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
 
 
@@ -44,9 +53,17 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         storeSpinner = (Spinner) findViewById(R.id.spinner);
 
+        sharedPreferences = (SharedPreferences) getSharedPreferences("setting", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        editText.setText(sharedPreferences.getString("editText", ""));
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                String text = editText.getText().toString();
+                editor.putString("editText", text);
+                editor.apply();
+
                 if (keyCode == event.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                     click(v);
                     return true;
@@ -55,8 +72,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setupOrdersData(); // 移到onCreate去執行就好，避免一直進行I/O呼叫
         setupListView();
         setupSpinner();
+
+        txv.setText(sharedPreferences.getString("txv", ""));
+        txv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                editor.putString("txv", s.toString());
+                editor.apply();
+            }
+        });
+
+        storeSpinner.setSelection(sharedPreferences.getInt("storeSpinner", 0));
+        storeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                editor.putInt("storeSpinner", position);
+                editor.apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         Log.d("Debug", "Main Activity onCrearte");
     }
@@ -64,6 +115,18 @@ public class MainActivity extends AppCompatActivity {
     void setupListView() {
         OrderAdapter adapter = new OrderAdapter(this, orders);
         listView.setAdapter(adapter);
+    }
+
+    private void setupOrdersData(){
+        String content = Utils.readFile(this, "history");
+        String[] datas = content.split("\n"); // 空行
+        for (int i=0; i<datas.length; i++){
+            // 將資料放回orders裡面
+            Order order = Order.newInstanceWithData(datas[i]);
+            if(order != null){
+                orders.add(order);
+            }
+        }
     }
 
     void setupSpinner() {
@@ -80,10 +143,14 @@ public class MainActivity extends AppCompatActivity {
         order.storeInfo = storeSpinner.getSelectedItem().toString();
         orders.add(order);
 
+        //把order寫進file裡面
+        Utils.writeFile(this, "history", order.getJsonObject().toString());
+        //每一行都是object , 一行一行存入
+
         txv.setText(note);
         menuResults = "";
         editText.setText("");
-        
+
         setupListView();
     }
 
