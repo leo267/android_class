@@ -12,16 +12,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Leo on 2016/6/9.
  */
 public class OrderAdapter extends BaseAdapter {
 
-    ArrayList<Order> orders;
+    List<Order> orders;
     LayoutInflater inflater;
 
-    public OrderAdapter(Context context, ArrayList<Order> orders) {
+    public OrderAdapter(Context context, List<Order> orders) {
         this.orders = orders;
         this.inflater = LayoutInflater.from(context);
     }
@@ -64,7 +65,7 @@ public class OrderAdapter extends BaseAdapter {
 
         int totalNumber = 0;    // 所有飲料個數
         try {
-            JSONArray jsonArray = new JSONArray(order.menuResults);
+            JSONArray jsonArray = new JSONArray(order.getMenuResults());
             for (int i =0; i<jsonArray.length(); i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 totalNumber += jsonObject.getInt("lNumber")+jsonObject.getInt("mNumber");
@@ -74,8 +75,8 @@ public class OrderAdapter extends BaseAdapter {
         }
 
         holder.drinkNumber.setText(String.valueOf(totalNumber));
-        holder.note.setText(order.note);
-        holder.storeInfo.setText(order.storeInfo);
+        holder.note.setText(order.getNote());
+        holder.storeInfo.setText(order.getStoreInfo());
         
         return convertView;
     }

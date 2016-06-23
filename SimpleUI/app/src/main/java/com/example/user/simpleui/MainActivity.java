@@ -20,7 +20,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -32,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     Spinner storeSpinner;
 
-    ArrayList<Order> orders = new ArrayList<>();
+    List<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
     String menuResults = "";
 
@@ -45,6 +51,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ParseObject testObject = new ParseObject("TestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();  //另外開一個Thread，在背景執行上傳動作。
+
+        // 下載資料，可能會是一個List或是Object
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TestObject");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                // 先確認是否有錯誤(exception)
+                if(e == null) {
+                    for (ParseObject object : objects) {
+                        Toast.makeText(MainActivity.this, object.getString("foo"), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    Log.d("debug", "Exception : " + e.toString());
+                }
+            }
+        });
+
+
         setContentView(R.layout.activity_main);
         txv = (TextView) findViewById(R.id.txv);
         editText = (EditText) findViewById(R.id.editText);
@@ -117,16 +147,25 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-    private void setupOrdersData(){
-        String content = Utils.readFile(this, "history");
+    private void setupOrdersData() {
+/*        String content = Utils.readFile(this, "history");
         String[] datas = content.split("\n"); // 空行
-        for (int i=0; i<datas.length; i++){
+        for (int i = 0; i < datas.length; i++) {
             // 將資料放回orders裡面
             Order order = Order.newInstanceWithData(datas[i]);
-            if(order != null){
+            if (order != null) {
                 orders.add(order);
             }
-        }
+        }*/
+        // 將資料載下來
+        Order.getQuery().findInBackground(new FindCallback<Order>() {
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                // 將網路上的資料，放進 orders (總訂單)
+                orders = objects;   // 將orders型態ArrayList<Order> 改成 List<Order>，才有辦法接收 objects，同步調整OrderAdapter
+                setupListView();    //更新listview
+            }
+        });
     }
 
     void setupSpinner() {
@@ -138,9 +177,10 @@ public class MainActivity extends AppCompatActivity {
     public void click(View view) {
         String note = editText.getText().toString();
         Order order = new Order();
-        order.menuResults = menuResults;
-        order.note = note;
-        order.storeInfo = storeSpinner.getSelectedItem().toString();
+        order.setMenuResults(menuResults);
+        order.setNote(note);
+        order.setStoreInfo(storeSpinner.getSelectedItem().toString());
+        order.saveEventually();
         orders.add(order);
 
         //把order寫進file裡面
