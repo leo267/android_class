@@ -2,7 +2,10 @@ package com.example.user.simpleui;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,8 +14,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -100,12 +107,35 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
 
     private void setData() {
         // 透過網路取得drinks
+//        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo info = cm.getActiveNetworkInfo();
+
         Drink.getQuery().findInBackground(new FindCallback<Drink>() {
             @Override
-            public void done(List<Drink> objects, ParseException e) {
-                if(e == null){
-                    drinks = objects;
-                    setupListView();
+            public void done(final List<Drink> objects, ParseException e) {
+                if(e != null){
+                    Drink.getQuery().fromLocalDatastore().findInBackground(new FindCallback<Drink>() {
+                        @Override
+                        public void done(List<Drink> objects, ParseException e) {
+                            drinks = objects;
+                            setupListView();
+                        }
+                    });
+                } else {
+                    // 若連線正常，把之前所有的drinkMenu刪除
+                    ParseObject.unpinAllInBackground("Drink", new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            // 把網路載回來的資訊存到loaclDatastore
+                            ParseObject.pinAllInBackground(objects, new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    drinks = objects;
+                                    setupListView();
+                                }
+                            });
+                        }
+                    });
                 }
             }
         });
