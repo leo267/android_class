@@ -9,8 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.parse.GetFileCallback;
+import com.parse.ParseException;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +47,7 @@ public class DrinkAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder holder;
+        final Holder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.listview_drink_item, null);
             holder = new Holder();
@@ -64,7 +67,14 @@ public class DrinkAdapter extends BaseAdapter {
 
         // android 沒有 url 載下資源檔(圖片) , 加入library：compile 'com.squareup.picasso:picasso:2.5.2'
         // into 塞到哪邊裡賣
-        Picasso.with(inflater.getContext()).load(drink.getImage().getUrl()).into(holder.drinkImageView);
+//        Picasso.with(inflater.getContext()).load(drink.getImage().getUrl()).into(holder.drinkImageView);
+        //改使用getFile方式，取得ParseFile圖檔
+        drink.getImage().getFileInBackground(new GetFileCallback() {
+            @Override
+            public void done(File file, ParseException e) {
+                Picasso.with(inflater.getContext()).load(file).into(holder.drinkImageView);
+            }
+        });
 
 //        holder.drinkImageView.setImageResource(drink.getImageId());
         return convertView;

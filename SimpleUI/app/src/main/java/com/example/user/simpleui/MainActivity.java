@@ -141,7 +141,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // 先把訂單抓出來
+                Order order = (Order) parent.getAdapter().getItem(position);
+                //把Order裡面的東西，給到另一個Activity
+                goToDetailOrder(order);
+            }
+        });
         Log.d("Debug", "Main Activity onCrearte");
+    }
+
+    private void goToDetailOrder(Order order) {
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, OrderDetailActivity.class);
+        //資料放進 intent
+        intent.putExtra("note", order.getNote());
+        intent.putExtra("menuResults", order.getMenuResults());
+        intent.putExtra("storeInfo", order.getStoreInfo());
+        startActivity(intent);
     }
 
     void setupListView() {
