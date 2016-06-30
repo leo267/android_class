@@ -10,18 +10,28 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
-public class OrderDetailActivity extends AppCompatActivity {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingTaskResponse {
 
     TextView noteTextView;
     TextView menuResultsTextView;
     TextView storeInfoTextView;
     ImageView staticMap;
+
+    MapFragment mapFragment;
+    GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +48,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         storeInfoTextView = (TextView) findViewById(R.id.storeInfoTextView);
         menuResultsTextView = (TextView) findViewById(R.id.menuResultsTextView);
         staticMap = (ImageView) findViewById(R.id.imageView);
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.fragment);
 
         //設定data前，最好先檢查資料是不是null
         if (note != null)
@@ -71,22 +82,29 @@ public class OrderDetailActivity extends AppCompatActivity {
                 String address = storeInfos[1];//[0]店名、[1]地址
                 Log.d("Debug", address);
                 //開另外一隻AsyncTask去做query的動作
-                (new GeoCodingTask(staticMap)).execute(address);
+                (new GeoCodingTask(this)).execute(address); //塞OrderDetailAcitivty在Constractor
             }
 
-            //開另外一隻Thread去做query的動作
-            //Thread缺點，(不知道執行到什麼時候會結束)會造成memory leak , 因此他不會被 gc (回收) ，Thread會綁住Activity，而Activity可能會綁住View，造成資源無法釋放掉，memory lead產生。
-            //寫thread不要用暱名函式去寫
-            /*new Thread(new Runnable() {
+            //跟mapFragment取GoogleMap
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
-                public void run() {
-
+                public void onMapReady(GoogleMap map) {
+                    googleMap = map;
                 }
-            }).run();
-*/
+            });
         }
     }
 
+    // 取得 response
+    @Override
+    public void responseWithGeoCodingResults(LatLng latLng) {
+        if (googleMap != null) {
+            // 控制Camera (放大/縮小、移動)
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+            googleMap.moveCamera(cameraUpdate);
+        }
+    }
+/*
     private static class GeoCodingTask extends AsyncTask<String, Void, Bitmap> {
         // 用WeakReference去指
         WeakReference<ImageView> imageViewWeakReference;
@@ -120,4 +138,5 @@ public class OrderDetailActivity extends AppCompatActivity {
             this.imageViewWeakReference = new WeakReference<ImageView>(imageView);
         }
     }
+    */
 }

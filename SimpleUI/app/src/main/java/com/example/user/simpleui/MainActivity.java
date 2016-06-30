@@ -64,13 +64,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 // 先確認是否有錯誤(exception)
-                if(e == null) {
+                if (e == null) {
                     for (ParseObject object : objects) {
                         Toast.makeText(MainActivity.this, object.getString("foo"), Toast.LENGTH_SHORT).show();
                     }
-                }
-                else
-                {
+                } else {
                     Log.d("debug", "Exception : " + e.toString());
                 }
             }
@@ -195,19 +193,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        if(info != null && info.isConnected()) {
+        if (info != null && info.isConnected()) {
             // 將資料載下來 (增加存進loacl database功能)
             Order.getOrdersFromRemote(new FindCallback<Order>() {
                 @Override
                 public void done(List<Order> objects, ParseException e) {
-                    if(e != null){
+                    if (e != null) {
                         // 代表有 exception
                         // 當手機有網路，但可能跑到中途掛掉了，就讓他改用Local Database
                         //  需要經過一段時間，才會從local database拿取資料，因為系統在嘗試取得線上database
                         Order.getQuery().fromLocalDatastore().findInBackground(callback);
                         //Toast 說現在沒有連上網路
                         Toast.makeText(MainActivity.this, "Sync Failed", Toast.LENGTH_SHORT).show();
-                    }else{
+                    } else {
                         // 如果沒有錯誤，呼叫一般的
                         callback.done(objects, e);
                     }
@@ -221,7 +219,21 @@ public class MainActivity extends AppCompatActivity {
 
     void setupSpinner() {
         String[] data = getResources().getStringArray(R.array.storeInfo);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
+        final ArrayList array = new ArrayList();
+        /*ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("StoreInfo");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e != null) {
+                    for (ParseObject object : objects) {
+                        String str = object.getString("name") + "," + object.getString("address");
+                        array.add(str);
+                    }
+                }
+            }
+        });*/
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array);
         storeSpinner.setAdapter(adapter);
     }
 
