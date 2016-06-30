@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         ParseObject testObject = new ParseObject("TestObject");
         testObject.put("foo", "bar");
-        testObject.saveInBackground();  //另外開一個Thread，在背景執行上傳動作。
+        //testObject.saveInBackground();  //另外開一個Thread，在背景執行上傳動作。
 
         // 下載資料，可能會是一個List或是Object
         ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TestObject");
@@ -220,18 +220,18 @@ public class MainActivity extends AppCompatActivity {
     void setupSpinner() {
         String[] data = getResources().getStringArray(R.array.storeInfo);
         final ArrayList array = new ArrayList();
-        /*ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("StoreInfo");
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("StoreInfo");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                if (e != null) {
+                if (e == null) {
                     for (ParseObject object : objects) {
                         String str = object.getString("name") + "," + object.getString("address");
                         array.add(str);
                     }
                 }
             }
-        });*/
+        });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array);
         storeSpinner.setAdapter(adapter);
