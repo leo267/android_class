@@ -95,4 +95,12 @@
         android:layout_toRightOf="@+id/button"
         android:layout_toEndOf="@+id/button" />
 
+    <com.facebook.login.widget.LoginButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginButton"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/txv"
+        android:layout_toEndOf="@+id/txv" />
+
 </RelativeLayout>

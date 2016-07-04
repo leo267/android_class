@@ -22,10 +22,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +60,10 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     static final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
+    static final int REQEUST_CODE_LOGIN_ACTIVITY = 1;
 
+    // Facebook使用的變數
+    CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +120,14 @@ public class MainActivity extends AppCompatActivity {
         setupOrdersData(); // 移到onCreate去執行就好，避免一直進行I/O呼叫
         setupListView();
         setupSpinner();
+//        setupFaceBook();
+
+        // User 沒有登入的情況下，開啟LoginActivity
+        if (ParseUser.getCurrentUser() == null) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, LoginActivity.class);
+            startActivityForResult(intent, REQEUST_CODE_LOGIN_ACTIVITY);
+        }
 
         txv.setText(sharedPreferences.getString("txv", ""));
         txv.addTextChangedListener(new TextWatcher() {
@@ -159,6 +182,79 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("menuResults", order.getMenuResults());
         intent.putExtra("storeInfo", order.getStoreInfo());
         startActivity(intent);
+    }
+
+    void setupFaceBook() {
+        // 設定與Facebook連線
+        // loginButton 已經自動設定連線，點下時會跳出登入頁面。
+        // 如何與 acivitiy 溝通 ，解: FB已經幫我們完成， callbackManager
+        // manifest 須加上「com.facebook.FacebookActivity」
+        // 要先建立facebook activity , 按下loginButton
+        // 會去執行 「com.facebook.FacebookActivity」這個LoginActivity，再透過 startActivityForResult() 把資料回傳。
+        // 因此onActivityResults也要加入 callBackManager.onActivityResults(requestCode, .. , data);
+
+        callbackManager = CallbackManager.Factory.create();
+
+        LoginButton loginButton = (LoginButton) findViewById(R.id.loginButton);
+
+        // 設定想取得的權限 :
+        // 看文件https://developers.facebook.com/docs/facebook-login/permissions/#adding
+        loginButton.setReadPermissions("email", "public_profile");
+
+        // 設定監聽事件
+        // 透過 callback function 取得 results
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // 取得 AccesToken 後，就可以向使用者問資料了
+                AccessToken accessToken = loginResult.getAccessToken();
+                Log.d("Debug", accessToken.getPermissions().toString());
+                // 到期期限
+                //Log.d("Debug", accessToken.getExpires().toString());
+
+                // 使用Graph API 與 Facebook 詢問資料
+                // 單純拿使用者的資料
+                GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        Log.d("Debug", object.toString());
+                        try {
+                            txv.setText(object.getString("name"));
+
+                            // has() 確認有沒有傳給我email , 有才往下執行
+                            if (object.has("email")) {
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                // 設定request要哪些東西
+                // 設定要哪些欄位 , ex: email, id, name
+                Bundle bundle = new Bundle();
+                bundle.putString("fields", "email, id, name");
+                request.setParameters(bundle);
+                request.executeAsync(); // 執行 (同asyncTask)
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
+        // 不是在 login 當下處理 , 則需先取得accessToken,在做request
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken != null) {
+            //GraphRequest ...
+        }
     }
 
     void setupListView() {
@@ -267,6 +363,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);    // 讓facebook去處理，回傳的結果。
+
         if (requestCode == REQUEST_CODE_DRINK_MENU_ACTIVITY) {
             if (resultCode == RESULT_OK) {
                 menuResults = data.getStringExtra("results");
