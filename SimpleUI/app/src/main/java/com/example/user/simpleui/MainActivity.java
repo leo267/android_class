@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);    // 讓facebook去處理，回傳的結果。
+//        callbackManager.onActivityResult(requestCode, resultCode, data);    // 讓facebook去處理，回傳的結果。
 
         if (requestCode == REQUEST_CODE_DRINK_MENU_ACTIVITY) {
             if (resultCode == RESULT_OK) {

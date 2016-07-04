@@ -5,6 +5,7 @@ import android.app.Application;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 
 /**
@@ -35,5 +36,8 @@ public class SimpleUIApplication extends Application {
         // initial Facebook SDK
         FacebookSdk.sdkInitialize(this);
         AppEventsLogger.activateApp(this);
+
+        // initial Parse Facebook Utils
+        ParseFacebookUtils.initialize(this);
     }
 }
